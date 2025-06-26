@@ -12,6 +12,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { InputSwitchModule } from 'primeng/inputswitch';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { InputTextareaModule } from 'primeng/inputtextarea'; // ✅ Importado corretamente
 
 @Component({
   selector: 'app-personagem-lista',
@@ -26,17 +27,19 @@ import { MessageService } from 'primeng/api';
     DialogModule,
     InputTextModule,
     InputSwitchModule,
-    ToastModule
+    ToastModule,
+    InputTextareaModule // ✅ adicionado aqui também
   ],
   providers: [MessageService],
   templateUrl: './personagem-lista.component.html',
   styleUrls: ['./personagem-lista.component.css']
 })
-
 export class PersonagemListaComponent implements OnInit {
   personagens: Personagem[] = [];
   displayModal: boolean = false;
+  displayDetalhes: boolean = false;
   personagemSelecionado!: Personagem;
+  personagemDetalhado!: Personagem;
 
   constructor(
     private personagemService: PersonagemService,
@@ -44,16 +47,29 @@ export class PersonagemListaComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.personagens = this.personagemService.getPersonagens(); 
+    this.personagens = this.personagemService.getPersonagens();
   }
 
   abrirModalNovo() {
     this.personagemSelecionado = {
-      id: 0,
+      id: this.gerarProximoId(),
       nome: '',
-      ativo: false
+      anime: '',
+      fotoUrl: '',
+      ativo: true,
+      descricao: ''
     };
     this.displayModal = true;
+  }
+
+  abrirModalDetalhar(personagem: Personagem) {
+    this.personagemSelecionado = { ...personagem };
+    this.displayModal = true;
+  }
+
+  abrirModalDetalhes(personagem: Personagem) {
+    this.personagemDetalhado = { ...personagem };
+    this.displayDetalhes = true;
   }
 
   salvarPersonagem() {
@@ -66,13 +82,20 @@ export class PersonagemListaComponent implements OnInit {
       return;
     }
 
-    this.personagemSelecionado.id = this.gerarProximoId();
-    this.personagens.push({ ...this.personagemSelecionado });
+    const index = this.personagens.findIndex(p => p.id === this.personagemSelecionado.id);
+
+    if (index >= 0) {
+      this.personagens[index] = { ...this.personagemSelecionado };
+    } else {
+      this.personagens.push({ ...this.personagemSelecionado });
+    }
+
+    this.personagens.sort((a, b) => a.id - b.id);
 
     this.messageService.add({
       severity: 'success',
       summary: 'Sucesso',
-      detail: 'Personagem inserido com sucesso!'
+      detail: 'Personagem salvo com sucesso!'
     });
 
     this.displayModal = false;
@@ -84,12 +107,12 @@ export class PersonagemListaComponent implements OnInit {
   }
 
   removerPersonagem(personagem: Personagem) {
-  this.personagens = this.personagens.filter(p => p.id !== personagem.id);
+    this.personagens = this.personagens.filter(p => p.id !== personagem.id);
 
-  this.messageService.add({
-    severity: 'success',
-    summary: 'Removido',
-    detail: `Personagem "${personagem.nome}" foi removido com sucesso!`
-  });
-}
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Removido',
+      detail: `Personagem "${personagem.nome}" foi removido com sucesso!`
+    });
+  }
 }
