@@ -1,0 +1,44 @@
+<div class="modal-overlay" *ngIf="visible" (click)="onFechar()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>Detalhes do Personagem</h2>
+      <button type="button" class="close-btn" (click)="onFechar()">✕</button>
+    </div>
+    
+    <div class="modal-content" *ngIf="personagem">
+      <div class="detail-item">
+        <strong>ID:</strong> {{ personagem.id }}
+      </div>
+      
+      <div class="detail-item">
+        <strong>Nome:</strong> {{ personagem.nome }}
+      </div>
+      
+      <div class="detail-item">
+        <strong>Anime:</strong> {{ personagem.anime }}
+      </div>
+      
+      <div class="detail-item">
+        <strong>Status:</strong>
+        <span class="status-badge" [class.status-alive]="personagem.ativo" [class.status-dead]="!personagem.ativo">
+          {{ personagem.ativo ? 'Vivo' : 'Falecido' }}
+        </span>
+      </div>
+      
+      <div class="detail-item">
+        <strong>Imagem:</strong>
+        <div class="image-container">
+          <img 
+            [src]="personagem.fotoUrl" 
+            alt="Foto do personagem" 
+            class="character-image" />
+        </div>
+      </div>
+      
+      <div class="detail-item">
+        <strong>Por que gosto dele(a):</strong>
+        <p class="description">{{ personagem.descricao }}</p>
+      </div>
+    </div>
+  </div>
+</div>

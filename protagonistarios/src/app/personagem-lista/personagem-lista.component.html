@@ -1,155 +1,28 @@
-<div class="card">
+<div class="container">
   <p-toast></p-toast>
-  <p-table [value]="personagens" responsiveLayout="scroll">
-    <ng-template pTemplate="caption">
-      <div style="text-align: center; padding: 20px;">
-        <h1 style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">
-          Protagonistarios
-        </h1>
-        <blockquote style="font-style: italic; color: #9b9999 !important; font-size: 18px; max-width: 600px; margin: 0 auto; margin-bottom: 30px;">
-          "Mas eles não são protagonistas, gabrielly!" São sim, protagonistas do meu coração!
-        </blockquote>
-      </div>
-    </ng-template>
-
-    <ng-template pTemplate="header">
-      <tr>
-        <th>ID</th>
-        <th>Foto</th>
-        <th>Nome</th>
-        <th>Anime</th>
-        <th>Status</th>
-        <th>Ações</th>
-      </tr>
-    </ng-template>
-
-    <ng-template pTemplate="body" let-personagem>
-      <tr>
-        <td>{{ personagem.id }}</td>
-        <td>
-          <img 
-            [src]="personagem.fotoUrl" 
-            alt="Foto de {{ personagem.nome }}" 
-            width="60" 
-            height="60" 
-            style="border-radius: 8px; object-fit: cover;" />
-        </td>
-        <td>{{ personagem.nome }}</td>
-        <td>{{ personagem.anime }}</td>
-        <td>
-          <p-tag 
-            [value]="personagem.ativo ? 'Vivo' : 'Falecido'" 
-            [severity]="personagem.ativo ? 'success' : 'danger'">
-          </p-tag>
-        </td>
-        <td class="text-center">
-          <p-button 
-            icon="pi pi-eye" 
-            class="p-button-sm p-button-rounded p-button-help mr-2" 
-            (click)="abrirModalDetalhes(personagem)">
-          </p-button>
-
-          <p-button 
-            icon="pi pi-pencil" 
-            class="p-button-sm p-button-rounded p-button-info mr-2" 
-            (click)="abrirModalDetalhar(personagem)">
-          </p-button>
-
-          <p-button 
-            icon="pi pi-trash" 
-            class="p-button-sm p-button-rounded p-button-danger" 
-            (click)="removerPersonagem(personagem)">
-          </p-button>
-        </td>
-      </tr>
-    </ng-template>
-  </p-table>
-  <div style="text-align: center; margin-top: 30px;">
-    <p-button 
-      label="Novo Personagem" 
-      icon="pi pi-plus" 
-      (click)="abrirModalNovo()">
-    </p-button>
-  </div>
-  <p-dialog 
-    header="Detalhar Personagem" 
-    [(visible)]="displayModal" 
-    [modal]="true" 
-    [style]="{ width: '50vw' }">
   
-    <ng-container *ngIf="personagemSelecionado">
-      <div class="field">
-        <label for="id" class="font-bold">ID</label>
-        <input type="number" pInputText id="id" [(ngModel)]="personagemSelecionado.id" class="w-full" />
-      </div>
-
-      <div class="field">
-        <label for="nome" class="font-bold">Nome</label>
-        <input type="text" pInputText id="nome" [(ngModel)]="personagemSelecionado.nome" class="w-full" />
-      </div>
-
-      <div class="field">
-        <label for="anime" class="font-bold">Anime</label>
-        <input type="text" pInputText id="anime" [(ngModel)]="personagemSelecionado.anime" class="w-full" />
-      </div>
-
-      <div class="field">
-        <label for="foto" class="font-bold">URL da Imagem</label>
-        <input type="text" pInputText id="foto" [(ngModel)]="personagemSelecionado.fotoUrl" class="w-full" />
-      </div>
-
-      <div class="field mt-4">
-        <label for="status" class="font-bold mr-3">Status Vivo</label>
-        <p-inputSwitch id="status" [(ngModel)]="personagemSelecionado.ativo"></p-inputSwitch>
-      </div>
-
-      <div class="field mt-4">
-        <label for="descricao" class="font-bold">Por que você gosta desse personagem?</label>
-        <textarea 
-          pInputText 
-          id="descricao" 
-          rows="3"
-          [(ngModel)]="personagemSelecionado.descricao" 
-          class="w-full">
-        </textarea>
-      </div>
-    </ng-container>
-
-    <ng-template pTemplate="footer">
-      <p-button label="Cancelar" icon="pi pi-times" styleClass="p-button-text" (click)="displayModal = false"></p-button>
-      <p-button label="Salvar" icon="pi pi-check" (click)="salvarPersonagem()"></p-button>
-    </ng-template>
-  </p-dialog>
-  <p-dialog 
-    header="Detalhes do Personagem" 
-    [(visible)]="displayDetalhes" 
-    [modal]="true" 
-    [style]="{ width: '40vw' }"
-    [closable]="true">
-
-    <ng-container *ngIf="personagemDetalhado">
-      <div class="mb-3"><strong>ID:</strong> {{ personagemDetalhado.id }}</div>
-      <div class="mb-3"><strong>Nome:</strong> {{ personagemDetalhado.nome }}</div>
-      <div class="mb-3"><strong>Anime:</strong> {{ personagemDetalhado.anime }}</div>
-      <div class="mb-3">
-        <strong>Status:</strong>
-        <p-tag 
-          [value]="personagemDetalhado.ativo ? 'Vivo' : 'Falecido'" 
-          [severity]="personagemDetalhado.ativo ? 'success' : 'danger'">
-        </p-tag>
-      </div>
-      <div class="mb-3">
-        <strong>Imagem:</strong><br>
-        <img 
-          [src]="personagemDetalhado.fotoUrl" 
-          alt="Foto" 
-          width="120" 
-          style="border-radius: 8px; object-fit: cover; margin-top: 8px;" />
-      </div>
-      <div class="mb-3">
-        <strong>Por que gosto dele(a):</strong><br>
-        <p>{{ personagemDetalhado.descricao }}</p>
-      </div>
-    </ng-container>
-  </p-dialog>
+  <!-- Componente de Tabela -->
+  <app-personagem-tabela
+    [personagens]="personagens"
+    (visualizarPersonagem)="onVisualizarPersonagem($event)"
+    (editarPersonagem)="onEditarPersonagem($event)"
+    (excluirPersonagem)="onExcluirPersonagem($event)"
+    (novoPersonagem)="onNovoPersonagem()">
+  </app-personagem-tabela>
+  
+  <!-- Componente de Formulário -->
+  <app-personagem-form
+    [visible]="displayFormModal"
+    [personagem]="personagemSelecionado"
+    [titulo]="tituloForm"
+    (fechar)="onFecharForm()"
+    (salvar)="onSalvarPersonagem($event)">
+  </app-personagem-form>
+  
+  <!-- Componente de Detalhes -->
+  <app-personagem-detalhes
+    [visible]="displayDetalhesModal"
+    [personagem]="personagemDetalhado"
+    (fechar)="onFecharDetalhes()">
+  </app-personagem-detalhes>
 </div>

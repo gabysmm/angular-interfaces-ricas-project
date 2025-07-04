@@ -1,0 +1,82 @@
+<div class="card">
+  <p-table [value]="personagens" responsiveLayout="scroll">
+    <ng-template pTemplate="caption">
+      <div style="text-align: center; padding: 20px;">
+        <h1 style="font-size: 36px; font-weight: bold; margin-bottom: 10px;">
+          Protagonistarios
+        </h1>
+        <blockquote style="font-style: italic; color: #9b9999 !important; font-size: 18px; max-width: 600px; margin: 0 auto; margin-bottom: 30px;">
+          "Mas eles não são protagonistas, gabrielly!" São sim, protagonistas do meu coração!
+        </blockquote>
+      </div>
+    </ng-template>
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th>ID</th>
+        <th>Foto</th>
+        <th>Nome</th>
+        <th>Anime</th>
+        <th>Status</th>
+        <th style="text-align: center; width: 150px;">Ações</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-personagem>
+      <tr>
+        <td>{{ personagem.id }}</td>
+        <td>
+          <img 
+            [src]="personagem.fotoUrl" 
+            alt="Foto de {{ personagem.nome }}" 
+            width="60" 
+            height="60" 
+            style="border-radius: 8px; object-fit: cover;" />
+        </td>
+        <td>{{ personagem.nome }}</td>
+        <td>{{ personagem.anime }}</td>
+        <td>
+          <p-tag 
+            [value]="personagem.ativo ? 'Vivo' : 'Falecido'" 
+            [severity]="personagem.ativo ? 'success' : 'danger'">
+          </p-tag>
+        </td>
+        <td style="text-align: center;">
+          <div class="action-buttons">
+            <button 
+              type="button"
+              class="action-btn view-btn" 
+              (click)="onVisualizar(personagem)"
+              title="Visualizar">
+              👁️
+            </button>
+
+            <button 
+              type="button"
+              class="action-btn edit-btn" 
+              (click)="onEditar(personagem)"
+              title="Editar">
+              ✏️
+            </button>
+
+            <button 
+              type="button"
+              class="action-btn delete-btn" 
+              (click)="onExcluir(personagem)"
+              title="Excluir">
+              🗑️
+            </button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+  <div style="text-align: center; margin-top: 30px;">
+    <button 
+      type="button"
+      class="new-btn"
+      (click)="onNovo()">
+      ➕ Novo Personagem
+    </button>
+  </div>
+</div>
