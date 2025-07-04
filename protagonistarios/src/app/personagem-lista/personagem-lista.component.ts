@@ -1,118 +1,116 @@
-import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
-import { Personagem } from '../models/personagem.model';
-import { PersonagemService } from '../personagem.service';
-import { TableModule } from 'primeng/table';
-import { TagModule } from 'primeng/tag';
-import { ButtonModule } from 'primeng/button';
-import { ToolbarModule } from 'primeng/toolbar';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputSwitchModule } from 'primeng/inputswitch';
-import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
-import { InputTextareaModule } from 'primeng/inputtextarea'; // ✅ Importado corretamente
+import { Component, OnInit } from "@angular/core"
+import { CommonModule } from "@angular/common"
+import { Personagem } from "../models/personagem.model"
+import { PersonagemService } from "../personagem.service"
+import { ToastModule } from "primeng/toast"
+import { MessageService } from "primeng/api"
+import { PersonagemTabelaComponent } from "../components/personagem-tabela/personagem-tabela.component"
+import { PersonagemFormComponent } from "../components/personagem-form/personagem-form.component"
+import { PersonagemDetalhesComponent } from "../components/personagem-detalhes/personagem-detalhes.component"
 
 @Component({
-  selector: 'app-personagem-lista',
+  selector: "app-personagem-lista",
   standalone: true,
-  imports: [
-    CommonModule,
-    FormsModule,
-    TableModule,
-    TagModule,
-    ButtonModule,
-    ToolbarModule,
-    DialogModule,
-    InputTextModule,
-    InputSwitchModule,
-    ToastModule,
-    InputTextareaModule // ✅ adicionado aqui também
-  ],
+  imports: [CommonModule, ToastModule, PersonagemTabelaComponent, PersonagemFormComponent, PersonagemDetalhesComponent],
   providers: [MessageService],
-  templateUrl: './personagem-lista.component.html',
-  styleUrls: ['./personagem-lista.component.css']
+  templateUrl: "./personagem-lista.component.html",
 })
 export class PersonagemListaComponent implements OnInit {
-  personagens: Personagem[] = [];
-  displayModal: boolean = false;
-  displayDetalhes: boolean = false;
-  personagemSelecionado!: Personagem;
-  personagemDetalhado!: Personagem;
+  personagens: Personagem[] = []
+  displayFormModal = false
+  displayDetalhesModal = false
+  personagemSelecionado: Personagem | null = null
+  personagemDetalhado: Personagem | null = null
+  tituloForm = "Personagem"
 
   constructor(
     private personagemService: PersonagemService,
-    private messageService: MessageService
+    private messageService: MessageService,
   ) {}
 
   ngOnInit(): void {
-    this.personagens = this.personagemService.getPersonagens();
+    this.carregarPersonagens()
   }
 
-  abrirModalNovo() {
+  carregarPersonagens(): void {
+    this.personagens = this.personagemService.getPersonagens()
+  }
+
+  // Handlers para eventos da tabela
+  onVisualizarPersonagem(personagem: Personagem): void {
+    this.personagemDetalhado = personagem
+    this.displayDetalhesModal = true
+  }
+
+  onEditarPersonagem(personagem: Personagem): void {
+    this.personagemSelecionado = { ...personagem }
+    this.tituloForm = "Editar Personagem"
+    this.displayFormModal = true
+  }
+
+  onExcluirPersonagem(personagem: Personagem): void {
+    this.personagemService.removerPersonagem(personagem.id)
+    this.carregarPersonagens()
+
+    this.messageService.add({
+      severity: "success",
+      summary: "Removido",
+      detail: `Personagem "${personagem.nome}" foi removido com sucesso!`,
+    })
+  }
+
+  onNovoPersonagem(): void {
     this.personagemSelecionado = {
-      id: this.gerarProximoId(),
-      nome: '',
-      anime: '',
-      fotoUrl: '',
+      id: this.personagemService.gerarProximoId(),
+      nome: "",
+      anime: "",
+      fotoUrl: "",
       ativo: true,
-      descricao: ''
-    };
-    this.displayModal = true;
+      descricao: "",
+    }
+    this.tituloForm = "Novo Personagem"
+    this.displayFormModal = true
   }
 
-  abrirModalDetalhar(personagem: Personagem) {
-    this.personagemSelecionado = { ...personagem };
-    this.displayModal = true;
+  // Handlers para eventos do formulário
+  onFecharForm(): void {
+    this.displayFormModal = false
+    this.personagemSelecionado = null
   }
 
-  abrirModalDetalhes(personagem: Personagem) {
-    this.personagemDetalhado = { ...personagem };
-    this.displayDetalhes = true;
-  }
-
-  salvarPersonagem() {
-    if (!this.personagemSelecionado.nome.trim()) {
+  onSalvarPersonagem(personagem: Personagem): void {
+    if (!personagem.nome.trim()) {
       this.messageService.add({
-        severity: 'warn',
-        summary: 'Atenção',
-        detail: 'O nome é obrigatório.'
-      });
-      return;
+        severity: "warn",
+        summary: "Atenção",
+        detail: "O nome é obrigatório.",
+      })
+      return
     }
 
-    const index = this.personagens.findIndex(p => p.id === this.personagemSelecionado.id);
+    const isNovo = !this.personagens.some((p) => p.id === personagem.id)
 
-    if (index >= 0) {
-      this.personagens[index] = { ...this.personagemSelecionado };
+    if (isNovo) {
+      this.personagemService.adicionarPersonagem(personagem)
     } else {
-      this.personagens.push({ ...this.personagemSelecionado });
+      this.personagemService.atualizarPersonagem(personagem)
     }
 
-    this.personagens.sort((a, b) => a.id - b.id);
+    this.carregarPersonagens()
 
     this.messageService.add({
-      severity: 'success',
-      summary: 'Sucesso',
-      detail: 'Personagem salvo com sucesso!'
-    });
+      severity: "success",
+      summary: "Sucesso",
+      detail: `Personagem ${isNovo ? "adicionado" : "atualizado"} com sucesso!`,
+    })
 
-    this.displayModal = false;
+    this.displayFormModal = false
+    this.personagemSelecionado = null
   }
 
-  gerarProximoId(): number {
-    if (this.personagens.length === 0) return 1;
-    return Math.max(...this.personagens.map(p => p.id)) + 1;
-  }
-
-  removerPersonagem(personagem: Personagem) {
-    this.personagens = this.personagens.filter(p => p.id !== personagem.id);
-
-    this.messageService.add({
-      severity: 'success',
-      summary: 'Removido',
-      detail: `Personagem "${personagem.nome}" foi removido com sucesso!`
-    });
+  // Handlers para eventos do modal de detalhes
+  onFecharDetalhes(): void {
+    this.displayDetalhesModal = false
+    this.personagemDetalhado = null
   }
 }
