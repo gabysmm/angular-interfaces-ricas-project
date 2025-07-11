@@ -1,5 +1,5 @@
 export interface Personagem {
-  id: number
+  id?: number
   nome: string
   anime: string
   fotoUrl: string
